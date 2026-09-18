@@ -3,10 +3,11 @@ import { pipeline } from 'stream/promises';
 import fse from '@zokugun/fs-extra-plus/async';
 import got from 'got';
 import semver from 'semver';
-import type { GitConfig, GitService, PartialSearchResult, Metadata } from '../types.js';
+import type { GitConfig, GitService, PartialSearchResult, Metadata, GitHubReleasesInfo } from '../types.js';
 import { Logger } from '../utils/logger.js';
 import { parseAssetName } from '../utils/parse-asset-name.js';
 import { TARGET_PLATFORM } from '../utils/settings.js';
+import { getFirstVsixUrl } from './github.js';
 
 type AssetInfo = {
 	name: string;
@@ -171,6 +172,15 @@ async function findLatestAsset({ fullName: repoName, targetName, targetVersion }
 					}
 				}
 			}
+		}
+	}
+
+	// TODO: This is tacked on at the end of the algorithm running, but should rather be done first.
+	if(!url) {
+		const githubUrl = getFirstVsixUrl(releases as GitHubReleasesInfo);
+		if(githubUrl) {
+			Logger.debug(`Found latest GitHub asset at: ${githubUrl}`);
+			url = githubUrl;
 		}
 	}
 
