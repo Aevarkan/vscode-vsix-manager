@@ -42,6 +42,16 @@ export type GitHub = {
 	fallback?: string;
 };
 
+export type GitHubReleasesInfo = GitHubReleaseInfo[];
+export type GitHubReleaseInfo = {
+	tag_name: string;
+	assets: GitHubAssetInfo[];
+};
+export type GitHubAssetInfo = {
+	url: string;
+	name: string;
+};
+
 export type GitService = Forgejo | GitHub;
 export type GitConfig = {
 	getHeaders(source: GitService | undefined): {} | undefined;

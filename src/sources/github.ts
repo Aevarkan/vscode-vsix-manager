@@ -1,5 +1,5 @@
 import process from 'process';
-import type { GitHub } from '../types.js';
+import type { GitHub, GitHubReleasesInfo } from '../types.js';
 import { Logger } from '../utils/logger.js';
 
 export function getReleasesUrl(extensionName: string, source: GitHub | undefined): string { // {{{
@@ -51,3 +51,30 @@ export function getDownloadHeaders(source: GitHub | undefined): { headers: {} } 
 		},
 	};
 } // }}}
+
+export function getFirstVsixUrl(releasesList: GitHubReleasesInfo): string | null {
+	// The API already sorts by time. We just find the first VSIX file.
+
+	let latestUrl: string | undefined;
+
+	// TODO: This assumes the .vsix file is universal and does not factor in differing platform requirements.
+	for(const release of releasesList) {
+		// NOTE: This assumes the extension uses a .vsix file extension
+		for(const asset of release.assets) {
+			const { name, url } = asset;
+			if(!(name.endsWith('.vsix'))) {
+				continue;
+			}
+
+			latestUrl = url;
+			break;
+		}
+	}
+
+	if(latestUrl) {
+		return latestUrl;
+	}
+	else {
+		return null;
+	}
+}
